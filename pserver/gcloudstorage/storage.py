@@ -105,6 +105,14 @@ class GCloudFileManager(object):
 
         if 'X-UPLOAD-FILENAME' in self.request.headers:
             file.filename = self.request.headers['X-UPLOAD-FILENAME']
+            try:
+                #Let clients specify a filename in base64 to preserve encoding
+                if file.filename.split()[0] == 'filename' and file.filename.split()[1] is not None:
+                    base64_filename = base64.b64decode(file.filename.split()[1]).decode("utf-8")
+                    if len(base64_filename) > 0:
+                        file.filename = base64_filename
+            except Exception:
+                pass
         else:
             file.filename = uuid.uuid4().hex
 
